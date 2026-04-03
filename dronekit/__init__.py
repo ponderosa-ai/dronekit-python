@@ -1213,7 +1213,7 @@ class Vehicle(HasObservers):
         @self.on_message('HEARTBEAT')
         def listener(self, name, m):
             # ignore groundstations
-            if m.type == mavutil.mavlink.MAV_TYPE_GCS:
+            if m.type == mavutil.mavlink.MAV_TYPE_GCS or (not self._handler.master.probably_vehicle_heartbeat(m)):
                 return
             self._armed = (m.base_mode & mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED) != 0
             self.notify_attribute_listeners('armed', self.armed, cache=True)
@@ -1377,7 +1377,7 @@ class Vehicle(HasObservers):
         @self.on_message(['HEARTBEAT'])
         def listener(self, name, msg):
             # ignore groundstations
-            if msg.type == mavutil.mavlink.MAV_TYPE_GCS:
+            if msg.type == mavutil.mavlink.MAV_TYPE_GCS or (not self._handler.master.probably_vehicle_heartbeat(msg)):
                 return
             self._heartbeat_system = msg.get_srcSystem()
             self._heartbeat_lastreceived = monotonic.monotonic()
@@ -2544,7 +2544,7 @@ class Gimbal(object):
 
         @vehicle.on_message('MOUNT_ORIENTATION')
         def listener(vehicle, name, m):
-            self._pitch = m.pitch 
+            self._pitch = m.pitch
             self._roll = m.roll
             self._yaw = m.yaw
             vehicle.notify_attribute_listeners('gimbal', vehicle.gimbal)
@@ -2686,7 +2686,7 @@ class Gimbal(object):
         return "Gimbal: pitch={0}, roll={1}, yaw={2}".format(self.pitch, self.roll, self.yaw)
 
 
-class Parameters(collections.MutableMapping, HasObservers):
+class Parameters(collections.abc.MutableMapping, HasObservers):
     """
     This object is used to get and set the values of named parameters for a vehicle. See the following links for information about
     the supported parameters for each platform: `Copter Parameters <http://copter.ardupilot.com/wiki/configuration/arducopter-parameters/>`_,
