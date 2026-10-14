@@ -741,7 +741,7 @@ class ChannelsOverride(dict):
 
     def __init__(self, vehicle):
         self._vehicle = vehicle
-        self._count = 8  # Fixed by MAVLink
+        self._count = 18  # Fixed by MAVLink
         self._active = True
 
     def __getitem__(self, key):
@@ -768,7 +768,7 @@ class ChannelsOverride(dict):
 
     def _send(self):
         if self._active:
-            overrides = [0] * 8
+            overrides = [0] * 18
             for k, v in self.items():
                 overrides[int(k) - 1] = v
             self._vehicle._master.mav.rc_channels_override_send(0, 0, *overrides)
